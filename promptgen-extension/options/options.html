@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>프롬프트 생성기 - 옵션</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">프롬프트 생성기 - 템플릿</div>
+        <div id="globalStatus" class="global-status"></div>
+      </header>
+
+      <main class="main">
+        <section class="panel list-panel">
+          <div class="panel-header">
+            <div class="panel-title">템플릿</div>
+            <div class="button-row">
+              <button id="newBtn" type="button" class="btn">새로 만들기</button>
+              <button id="cloneBtn" type="button" class="btn">복제</button>
+              <button id="deleteBtn" type="button" class="btn">삭제</button>
+              <button id="exportBtn" type="button" class="btn">내보내기</button>
+              <button id="importBtn" type="button" class="btn">가져오기</button>
+            </div>
+          </div>
+
+          <div class="panel-help">
+            기본(내장) 템플릿도 여기에서 수정할 수 있으며, 수정 내용은 브라우저에 저장되어 기본값을 덮어씁니다(필요 시 기본값으로 복원 가능). 가져오기 시 사용자 템플릿 ID가 충돌하면 "-imported-N"으로 자동 이름이 변경됩니다.
+          </div>
+
+          <input
+            id="importFileInput"
+            class="hidden"
+            type="file"
+            accept="application/json,.json"
+          />
+
+          <ul id="templateList" class="template-list"></ul>
+
+          <div class="quick-builder">
+            <div class="quick-builder-header">
+              <div class="quick-builder-title">옵션 빠른 추가</div>
+              <button id="addQuickOptionBtn" type="button" class="btn btn-small">
+                옵션 추가
+              </button>
+            </div>
+
+            <div id="quickOptionsRoot" class="quick-options"></div>
+
+            <div class="quick-builder-help">
+              선택형 옵션을 쉽게 추가합니다. 값은 줄바꿈/쉼표/| 로 구분해 입력하세요. (단일 선택:
+              {a|b|c}, 다중 선택: {a, b, c})
+            </div>
+          </div>
+        </section>
+
+        <section class="panel editor-panel">
+          <div class="panel-title">편집기</div>
+
+          <div id="formErrors" class="errors hidden"></div>
+          <div id="formWarnings" class="warnings hidden"></div>
+
+          <div class="form">
+            <label class="label">
+              <div class="label-title">ID</div>
+              <input id="idInput" class="input" autocomplete="off" />
+            </label>
+
+            <label class="label">
+              <div class="label-title">이름</div>
+              <input id="nameInput" class="input" autocomplete="off" />
+            </label>
+
+            <label class="label">
+              <div class="label-title">설명 (선택)</div>
+              <input id="descInput" class="input" autocomplete="off" />
+            </label>
+
+            <label class="label">
+              <div class="label-title">마스터 프롬프트</div>
+              <textarea id="masterInput" class="textarea textarea-master"></textarea>
+            </label>
+
+            <label class="label">
+              <div class="label-title">필드 (JSON 배열)</div>
+              <textarea id="fieldsInput" class="textarea textarea-fields"></textarea>
+            </label>
+
+            <div class="button-row">
+              <button id="saveBtn" type="button" class="btn btn-primary">저장</button>
+              <button id="generateFieldsBtn" type="button" class="btn">필드 자동 생성</button>
+              <button id="reloadBtn" type="button" class="btn">다시 불러오기</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./options.js"></script>
+  </body>
+</html>

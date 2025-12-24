@@ -1,0 +1,9 @@
+{
+  "name": "promtmanager",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "package:ext": "python3 scripts/package_extension.py",
+    "test": "node --test"
+  }
+}

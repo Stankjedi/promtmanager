@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>프롬프트 생성기</title>
+    <link rel="stylesheet" href="./sidepanel.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">프롬프트 생성기</div>
+
+        <div class="template-select">
+          <label class="label" for="templateSelect">템플릿</label>
+          <input
+            id="templateSearch"
+            class="template-search"
+            type="search"
+            placeholder="검색..."
+            autocomplete="off"
+          />
+          <select id="templateSelect" class="select"></select>
+          <button
+            id="favoriteBtn"
+            type="button"
+            class="btn btn-small btn-favorite"
+            aria-pressed="false"
+            title="즐겨찾기"
+          >
+            ☆
+          </button>
+          <button id="openOptionsBtn" type="button" class="btn btn-small">
+            템플릿 관리
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="panel left">
+          <div class="panel-title">옵션 선택</div>
+          <div id="templateDesc" class="desc"></div>
+          <div id="fieldsRoot"></div>
+        </section>
+
+        <section class="panel right">
+          <div class="panel-title">미리보기</div>
+
+          <div id="errorsRoot" class="errors hidden"></div>
+
+          <textarea id="preview" class="preview" readonly></textarea>
+
+          <div class="actions">
+            <div class="actions-buttons">
+              <button id="copyBtn" type="button" class="btn btn-primary">
+                클립보드로 복사 (Ctrl/⌘+Enter)
+              </button>
+              <button id="selectPreviewBtn" type="button" class="btn">
+                미리보기 텍스트 선택
+              </button>
+              <button id="resetValuesBtn" type="button" class="btn">
+                값 초기화
+              </button>
+            </div>
+            <div id="status" class="status"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./sidepanel.js"></script>
+  </body>
+</html>
