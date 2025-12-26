@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   sanitizeTemplates,
   validateTemplate
-} from "../promptgen-extension/shared/template_validation.js";
+} from "../ui/shared/template_validation.js";
 
 test("validateTemplate: rejects non-objects", () => {
   const res = validateTemplate(null);

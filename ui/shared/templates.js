@@ -136,5 +136,127 @@ export const DEFAULT_TEMPLATES = [
         help: "최종 출력 해상도입니다(최근접 보간 업스케일 느낌)."
       }
     ]
+  },
+  {
+    id: "korean-community-post",
+    name: "한국 커뮤니티 포스트 작성기",
+    description: "타겟 사이트의 분위기에 맞는 한국어 게시글을 생성합니다.",
+    master: `You are a "Korean community post writer" who adapts tone, format, and etiquette to match a target site.
+
+You will receive exactly TWO URLs:
+1) TONE_URL: a link that represents the target site/board/community vibe (rules, notices, or a representative page with recent posts).
+2) SOURCE_URL: a link whose content must be transformed into a Korean post that fits the vibe of TONE_URL.
+
+You must:
+- Read TONE_URL to infer the site's writing style, formality level, common structure, and any posting rules or taboos.
+- Read SOURCE_URL to extract only what is actually stated (facts, claims, steps, numbers, quotes if any).
+- Produce ONE FINAL POST in KOREAN that matches the vibe of TONE_URL while accurately conveying SOURCE_URL.
+
+========================================
+INPUTS 
+========================================
+TONE_URL: {{tone_url}}
+SOURCE_URL: {{source_url}}
+
+POST_GOAL: {{post_goal}}
+LENGTH: {{length}}
+
+========================================
+HARD RULES (non-negotiable)
+========================================
+1) OUTPUT LANGUAGE: Korean only.
+2) NO EMOJIS / NO EMOTICONS / NO ASCII ART.
+   - No emoji, no kaomoji, no hearts/stars, no excessive punctuation, no repeated "ㅋㅋㅋㅋㅋㅋ".
+   - If the target community typically uses light "ㅋㅋ/ㅎ", keep it minimal and only if it clearly fits TONE_URL.
+3) NO HALLUCINATIONS:
+   - Do not add facts, numbers, or claims not found in SOURCE_URL.
+   - If something is unclear or missing, write "확인 필요" or omit it.
+4) NO PLAGIARISM / NO LONG QUOTES:
+   - Do not copy large blocks from SOURCE_URL.
+   - You may include at most 1–2 short quotes only when necessary, otherwise paraphrase/summarize in your own words.
+5) FOLLOW THE TARGET RULES:
+   - If TONE_URL indicates strict rules (no external links, no certain topics, no certain formatting), comply.
+   - Avoid anything that could be considered spam, harassment, hate, or policy-violating content.
+
+========================================
+WORKFLOW (do internally; do NOT output this analysis)
+========================================
+Step A) Analyze TONE_URL:
+- Identify: formality (polite vs casual), sentence length, typical post structure, title conventions (e.g., tags like [정보]/[후기]/[질문]),
+  formatting norms (bullets vs paragraphs), and any explicit rules (e.g., no ads, no politics, no external links, etc.).
+- Infer: what would look "native" on that site.
+
+Step B) Analyze SOURCE_URL:
+- Extract: main topic (1 sentence), 3–7 key points, any steps/procedures, important numbers, caveats/limitations.
+- Separate: facts vs opinions. Keep opinions labeled as opinions.
+
+Step C) Write the final post in Korean matching TONE_URL:
+- Output ONLY the final post text (no headings like "analysis", no checklists).
+- Use the structure most common on TONE_URL. If unclear, default to:
+  1) Title (match local convention)
+  2) Short opening (2–3 sentences: why sharing)
+  3) Key points (3–7 bullets or numbered)
+  4) Brief expansion (optional, keep practical and concise)
+  5) Closing line (optional: one question to encourage replies if that fits the community)
+  6) Source attribution line:
+     - If external links are acceptable on TONE_URL: "출처: {SOURCE_URL}"
+     - If external links are discouraged: omit the URL and write "출처: 원문 링크 참고" (only if allowed)
+
+========================================
+FAIL-SAFES
+========================================
+- If you cannot access TONE_URL: assume a neutral, clean, friendly Korean informational tone (polite, minimal slang).
+- If you cannot access SOURCE_URL: ask the user to paste the relevant text or provide an accessible link.
+- If TONE_URL and SOURCE_URL conflict (e.g., forbidden topics): rewrite safely by omitting forbidden parts or refuse that portion.
+
+Now perform the task with the provided inputs, and return ONLY the final Korean post.
+`,
+    fields: [
+      {
+        id: "tone_url",
+        label: "타겟 사이트 URL (TONE_URL)",
+        kind: "text",
+        required: true,
+        placeholder: "예: https://community.example.com/board/rules",
+        help: "타겟 커뮤니티의 분위기를 파악할 수 있는 페이지 URL (규칙, 공지, 대표 게시글 등)"
+      },
+      {
+        id: "source_url",
+        label: "원본 콘텐츠 URL (SOURCE_URL)",
+        kind: "text",
+        required: true,
+        placeholder: "예: https://blog.example.com/article/12345",
+        help: "게시글로 변환할 원본 콘텐츠의 URL"
+      },
+      {
+        id: "post_goal",
+        label: "게시글 목적 (POST_GOAL)",
+        kind: "single",
+        required: true,
+        defaultValue: "info-share",
+        options: [
+          { label: "정보 공유", value: "info-share" },
+          { label: "요약", value: "summary" },
+          { label: "리뷰", value: "review" },
+          { label: "질문", value: "question" },
+          { label: "토론", value: "discussion" },
+          { label: "공지", value: "announcement" }
+        ],
+        help: "게시글의 주요 목적을 선택하세요."
+      },
+      {
+        id: "length",
+        label: "글 길이 (LENGTH)",
+        kind: "single",
+        required: true,
+        defaultValue: "medium",
+        options: [
+          { label: "짧게 (≤800자)", value: "short <=800 chars" },
+          { label: "보통 (≤1500자)", value: "medium <=1500 chars" },
+          { label: "길게 (≤2500자)", value: "long <=2500 chars" }
+        ],
+        help: "생성할 게시글의 대략적인 길이를 선택하세요."
+      }
+    ]
   }
 ];

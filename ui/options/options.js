@@ -180,13 +180,19 @@ function updateButtonsForSelection() {
 }
 
 async function loadTemplates() {
+  console.log("loadTemplates started");
   setGlobalStatus("");
 
   const prevSelected = state.selectedId;
-  const data = await getLocal([KEY_CUSTOM_TEMPLATES, KEY_TEMPLATE_OVERRIDES]);
+  const data = await getLocal({
+    [KEY_CUSTOM_TEMPLATES]: [],
+    [KEY_TEMPLATE_OVERRIDES]: {}
+  });
 
   const rawCustom = data?.[KEY_CUSTOM_TEMPLATES];
   const rawOverrides = data?.[KEY_TEMPLATE_OVERRIDES];
+
+  console.log("loadTemplates: raw data", { customCount: rawCustom?.length, overrideCount: Object.keys(rawOverrides || {}).length });
 
   const customRes =
     rawCustom === undefined || rawCustom === null
@@ -233,6 +239,7 @@ async function loadTemplates() {
 }
 
 async function onNew() {
+  console.log("onNew started");
   const reserved = reservedCustomIdsExcluding({
     defaultIds: DEFAULT_IDS,
     customTemplates: state.customTemplates,
@@ -250,19 +257,27 @@ async function onNew() {
 
   const res = validateTemplate(draft, { reservedIds: reserved });
   if (!res.ok) {
+    console.warn("onNew: validation failed", res.errors);
     setBox("formErrors", "오류", res.errors);
     setBox("formWarnings", "경고", res.warnings);
     return;
   }
 
+  console.log("onNew: creating", res.template.id);
   state.customTemplates = [res.template, ...state.customTemplates];
-  const persisted = await persistCustomTemplates("저장");
   rebuildTemplates();
   selectTemplate(res.template.id);
-  if (persisted) setGlobalStatus("새 템플릿을 만들었습니다.");
+
+  const persisted = await persistCustomTemplates("저장");
+  if (persisted) {
+    setGlobalStatus("새 템플릿을 만들었습니다.");
+  } else {
+    console.error("onNew: persistence failed");
+  }
 }
 
 async function onClone() {
+  console.log("onClone started");
   const cur = state.templates.find((t) => t.id === state.selectedId);
   if (!cur) return;
 
@@ -279,19 +294,25 @@ async function onClone() {
 
   const res = validateTemplate(draft, { reservedIds: reserved });
   if (!res.ok) {
+    console.warn("onClone: validation failed", res.errors);
     setBox("formErrors", "오류", res.errors);
     setBox("formWarnings", "경고", res.warnings);
     return;
   }
 
+  console.log("onClone: creating", res.template.id);
   state.customTemplates = [res.template, ...state.customTemplates];
-  const persisted = await persistCustomTemplates("저장");
   rebuildTemplates();
   selectTemplate(res.template.id);
-  if (persisted) setGlobalStatus("템플릿을 복제했습니다.");
+
+  const persisted = await persistCustomTemplates("저장");
+  if (persisted) {
+    setGlobalStatus("템플릿을 복제했습니다.");
+  }
 }
 
 async function onDelete() {
+  console.log("onDelete started");
   const cur = state.templates.find((t) => t.id === state.selectedId);
   if (!cur) return;
 
@@ -315,15 +336,15 @@ async function onDelete() {
   if (!ok) return;
 
   state.customTemplates = state.customTemplates.filter((t) => t.id !== cur.id);
-  const persisted = await persistCustomTemplates("저장");
   rebuildTemplates();
+  const persisted = await persistCustomTemplates("저장");
 
   const nextId = state.templates[0]?.id ?? null;
   selectTemplate(nextId);
   if (persisted) setGlobalStatus("템플릿을 삭제했습니다.");
 }
-
 async function onSave() {
+  console.log("onSave started");
   const selectedId = state.selectedId;
   const oldId = selectedId;
   const isDefault = typeof selectedId === "string" && isDefaultTemplateId(selectedId);
@@ -335,6 +356,7 @@ async function onSave() {
     rawFields = txt ? JSON.parse(txt) : [];
   } catch (e) {
     const err = e instanceof Error ? e.message : String(e ?? "unknown");
+    console.warn("onSave: JSON parse error", err);
     setBox("formErrors", "오류", [`필드 JSON이 올바르지 않습니다: ${err}`]);
     setBox("formWarnings", "경고", []);
     return;
@@ -349,11 +371,13 @@ async function onSave() {
   };
 
   if (isDefault) {
+    console.log("onSave: saving default override", selectedId);
     rawTemplate.id = selectedId;
     el("idInput").value = selectedId;
 
     const res = validateTemplate(rawTemplate);
     if (!res.ok) {
+      console.warn("onSave: default validation failed", res.errors);
       setBox("formErrors", "오류", res.errors);
       setBox("formWarnings", "경고", res.warnings);
       return;
@@ -380,21 +404,26 @@ async function onSave() {
   });
   const res = validateTemplate(rawTemplate, { reservedIds: reserved });
   if (!res.ok) {
+    console.warn("onSave: custom validation failed", res.errors);
     setBox("formErrors", "오류", res.errors);
     setBox("formWarnings", "경고", res.warnings);
     return;
   }
 
+  console.log("onSave: saving custom template", res.template.id);
   setBox("formErrors", "오류", []);
   setBox("formWarnings", "경고", res.warnings);
 
   const warnings = res.warnings;
-  if (idx >= 0) state.customTemplates[idx] = res.template;
-  else state.customTemplates.unshift(res.template);
+  if (idx >= 0) {
+    state.customTemplates[idx] = res.template;
+  } else {
+    state.customTemplates.unshift(res.template);
+  }
 
+  rebuildTemplates();
   state.selectedId = res.template.id;
   const persisted = await persistCustomTemplates("저장");
-  rebuildTemplates();
   selectTemplate(res.template.id);
   setBox("formErrors", "오류", []);
   setBox("formWarnings", "경고", warnings);
@@ -549,6 +578,14 @@ async function onImportFile(file) {
 }
 
 function wireUi() {
+  const backBtn = document.getElementById("backToPanelBtn");
+  if (backBtn) {
+    backBtn.classList.remove("hidden");
+    backBtn.addEventListener("click", () => {
+      window.location.href = "../sidepanel/sidepanel.html";
+    });
+  }
+
   el("newBtn").addEventListener("click", () => onNew().catch(console.error));
   el("cloneBtn").addEventListener("click", () => onClone().catch(console.error));
   el("deleteBtn").addEventListener("click", () => onDelete().catch(console.error));

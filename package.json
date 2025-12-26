@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "package:ext": "python3 scripts/package_extension.py",
+    "dev:desktop": "npx tauri dev",
+    "build:desktop": "npx tauri build",
     "test": "node --test"
   }
 }

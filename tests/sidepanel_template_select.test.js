@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   computeTemplateSelectList,
   splitFavorites
-} from "../promptgen-extension/sidepanel/template_select.js";
+} from "../ui/sidepanel/template_select.js";
 
 test("computeTemplateSelectList: empty query returns all templates", () => {
   const templates = [

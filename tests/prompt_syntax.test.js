@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseMasterPrompt } from "../promptgen-extension/shared/prompt_syntax.js";
+import { parseMasterPrompt } from "../ui/shared/prompt_syntax.js";
 
 test("parseMasterPrompt: derives fields from option blocks and tokens", () => {
   const input = [

@@ -152,11 +152,11 @@ export function parseMasterPrompt(master) {
     }
 
     // 2) Ensure {{tokens}} also create text fields (if not already created)
-    const tokenRe = /\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/g;
+    const tokenRe = /\{\{\s*([^{}\n\r]+)\s*\}\}/g;
     let tm;
     while ((tm = tokenRe.exec(out)) !== null) {
-      const id = tm[1];
-      if (fields.some((f) => f.id === id)) continue;
+      const id = tm[1].trim();
+      if (!id || fields.some((f) => f.id === id)) continue;
       usedIds.add(id);
 
       const prefix = out.slice(0, tm.index);

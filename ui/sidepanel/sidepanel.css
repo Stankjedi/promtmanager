@@ -64,9 +64,8 @@ body {
 }
 
 .main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  gap: 0;
   padding: 12px;
   flex: 1;
   min-height: 0;
@@ -80,6 +79,56 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: auto;
+}
+
+.panel.left {
+  flex: 0 0 auto;
+  width: 50%;
+  min-width: 150px;
+  max-width: calc(100% - 180px);
+}
+
+.panel.right {
+  flex: 1;
+  min-width: 150px;
+}
+
+.resizer {
+  width: 8px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.resizer::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 40px;
+  background: #2a3142;
+  border-radius: 2px;
+  transition: background 0.15s, height 0.15s;
+}
+
+.resizer:hover::after,
+.resizer.active::after {
+  background: #7aa2ff;
+  height: 60px;
+}
+
+.resizer.active {
+  background: rgba(122, 162, 255, 0.1);
+}
+
+body.resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .panel-title {

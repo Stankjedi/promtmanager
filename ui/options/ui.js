@@ -2,8 +2,19 @@ export function el(id) {
   return document.getElementById(id);
 }
 
+let globalStatusTimer = null;
 export function setGlobalStatus(text) {
-  el("globalStatus").textContent = text || "";
+  const element = el("globalStatus");
+  element.textContent = text || "";
+
+  if (globalStatusTimer) clearTimeout(globalStatusTimer);
+  if (text) {
+    globalStatusTimer = setTimeout(() => {
+      if (element.textContent === text) {
+        element.textContent = "";
+      }
+    }, 5000);
+  }
 }
 
 export function setBox(boxId, title, items) {

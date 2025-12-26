@@ -21,7 +21,7 @@ function optionalNumber(value, fallback = null) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-const MASTER_TOKEN_RE = /\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/g;
+const MASTER_TOKEN_RE = /\{\{\s*([^{}\n\r]+)\s*\}\}/g;
 
 function extractTokenIdsFromMaster(master) {
   const s = typeof master === "string" ? master : "";

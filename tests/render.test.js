@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { normalizeValues, renderPrompt } from "../promptgen-extension/shared/render.js";
+import { normalizeValues, renderPrompt } from "../ui/shared/render.js";
 
 const TEMPLATE = {
   id: "test-template",

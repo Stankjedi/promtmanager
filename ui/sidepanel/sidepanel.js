@@ -5,6 +5,7 @@ import { getLocal, removeLocal, setLocal, storageErrorToUserMessage } from "../s
 import { sanitizeTemplates, validateTemplate } from "../shared/template_validation.js";
 import { parseMasterPrompt } from "../shared/prompt_syntax.js";
 import { computeTemplateSelectList, splitFavorites } from "./template_select.js";
+import { isTauri, tauriInvoke, tauriListen } from "../shared/tauri.js";
 
 const KEY_SELECTED_TEMPLATE = "pg.selectedTemplateId";
 const KEY_CUSTOM_TEMPLATES = "pg.customTemplates";
@@ -32,9 +33,19 @@ function isPlainObject(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+let statusTimer = null;
 function setStatus(text) {
   const el = document.getElementById("status");
   el.textContent = text || "";
+
+  if (statusTimer) clearTimeout(statusTimer);
+  if (text) {
+    statusTimer = setTimeout(() => {
+      if (el.textContent === text) {
+        el.textContent = "";
+      }
+    }, 5000);
+  }
 }
 
 let lastStorageWriteStatusAt = 0;
@@ -713,17 +724,8 @@ async function init() {
     });
   }
 
-  document.getElementById("openOptionsBtn").addEventListener("click", async () => {
-    try {
-      if (chrome?.runtime?.openOptionsPage) {
-        await chrome.runtime.openOptionsPage();
-        return;
-      }
-    } catch (e) {
-      console.warn("openOptionsPage failed:", e);
-    }
-
-    setStatus("옵션 페이지를 열 수 없습니다. (chrome://extensions에서 확장 상세 → 옵션)");
+  document.getElementById("openOptionsBtn").addEventListener("click", () => {
+    window.location.href = "../options/options.html";
   });
 
   document.getElementById("copyBtn").addEventListener("click", async () => {
@@ -762,15 +764,92 @@ async function init() {
     }
   });
 
-  chrome.runtime.onMessage.addListener((msg) => {
+  if (isTauri()) {
     try {
-      if (msg?.type === "PG_SET_FIELD" && typeof msg.fieldId === "string") {
-        state.values[msg.fieldId] = String(msg.value ?? "");
-        scheduleSave();
-        syncFieldUi(msg.fieldId);
-        renderPreview(currentTemplate());
-        setStatus(`필드(${msg.fieldId})를 업데이트했습니다.`);
+      await tauriListen("PG_SET_FIELD", (event) => {
+        try {
+          const msg = event?.payload ?? null;
+          if (msg?.type === "PG_SET_FIELD" && typeof msg.fieldId === "string") {
+            state.values[msg.fieldId] = String(msg.value ?? "");
+            scheduleSave();
+            syncFieldUi(msg.fieldId);
+            renderPreview(currentTemplate());
+            setStatus(`필드(${msg.fieldId})를 업데이트했습니다.`);
+          }
+        } catch {
+          // ignore
+        }
+      });
+    } catch (e) {
+      console.warn("tauri event listen failed:", e);
+    }
+  }
+
+  // Resizer drag functionality
+  setupResizer();
+}
+
+const KEY_PANEL_WIDTH = "pg.panelWidth";
+
+function setupResizer() {
+  const resizer = document.getElementById("resizer");
+  const leftPanel = document.getElementById("leftPanel");
+  const main = document.querySelector(".main");
+
+  if (!resizer || !leftPanel || !main) return;
+
+  // Restore saved width
+  try {
+    const saved = localStorage.getItem(KEY_PANEL_WIDTH);
+    if (saved) {
+      const width = parseInt(saved, 10);
+      if (!isNaN(width) && width >= 150) {
+        leftPanel.style.width = `${width}px`;
       }
+    }
+  } catch {
+    // ignore
+  }
+
+  let isResizing = false;
+  let startX = 0;
+  let startWidth = 0;
+
+  resizer.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = leftPanel.getBoundingClientRect().width;
+
+    resizer.classList.add("active");
+    document.body.classList.add("resizing");
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isResizing) return;
+
+    const dx = e.clientX - startX;
+    const mainRect = main.getBoundingClientRect();
+    const maxWidth = mainRect.width - 180; // min 150px for right + 8px resizer + padding
+    const minWidth = 150;
+
+    let newWidth = startWidth + dx;
+    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+    leftPanel.style.width = `${newWidth}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    if (!isResizing) return;
+
+    isResizing = false;
+    resizer.classList.remove("active");
+    document.body.classList.remove("resizing");
+
+    // Save width
+    try {
+      const width = leftPanel.getBoundingClientRect().width;
+      localStorage.setItem(KEY_PANEL_WIDTH, String(Math.round(width)));
     } catch {
       // ignore
     }
