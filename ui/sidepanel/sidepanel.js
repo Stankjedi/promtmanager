@@ -728,6 +728,10 @@ async function init() {
     window.location.href = "../options/options.html";
   });
 
+  document.getElementById("openSettingsBtn")?.addEventListener("click", () => {
+    window.location.href = "../settings/settings.html";
+  });
+
   document.getElementById("copyBtn").addEventListener("click", async () => {
     const t = currentTemplate();
     const res = renderPrompt(t, state.values);

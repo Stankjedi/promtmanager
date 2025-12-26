@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>프롬프트 생성기 - 단축키 설정</title>
+    <link rel="stylesheet" href="./settings.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="title">단축키 설정</div>
+        <button id="backToPanelBtn" type="button" class="btn btn-small">
+          패널로
+        </button>
+      </header>
+
+      <main class="main">
+        <section class="panel settings-panel">
+          <div class="panel-title">전역 단축키</div>
+          <div class="panel-help">
+            클릭 후 원하는 키 조합을 입력하세요. Ctrl, Shift, Alt 와 일반 키를 조합할 수 있습니다.
+          </div>
+
+          <div id="formErrors" class="errors hidden"></div>
+
+          <div class="form">
+            <label class="label">
+              <div class="label-title">오버레이 토글</div>
+              <div class="label-desc">앱 창을 보이거나 숨깁니다</div>
+              <input
+                id="toggleOverlayInput"
+                class="input shortcut-input"
+                readonly
+                placeholder="클릭 후 키 입력..."
+              />
+            </label>
+
+            <label class="label">
+              <div class="label-title">클립보드 → ASSET</div>
+              <div class="label-desc">클립보드 내용을 ASSET 필드에 주입하고 창을 표시합니다</div>
+              <input
+                id="pasteAssetInput"
+                class="input shortcut-input"
+                readonly
+                placeholder="클릭 후 키 입력..."
+              />
+            </label>
+
+            <div class="button-row">
+              <button id="saveBtn" type="button" class="btn btn-primary">저장</button>
+              <button id="resetBtn" type="button" class="btn">기본값 복원</button>
+            </div>
+          </div>
+
+          <div id="status" class="status"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./settings.js"></script>
+  </body>
+</html>
