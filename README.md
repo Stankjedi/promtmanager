@@ -7,6 +7,12 @@
   />
 </p>
 
+<p align="center">
+  <a href="https://ctee.kr/place/stankjedi">
+    <img src="https://img.shields.io/badge/☕-후원하기-orange?style=for-the-badge" alt="후원하기" />
+  </a>
+</p>
+
 # promtmanager — 프롬프트 생성기 (데스크탑 오버레이)
 
 이 프로젝트는 템플릿 기반으로 프롬프트를 조립하고 빠르게 복사할 수 있는 데스크탑 오버레이 애플리케이션입니다. Rust와 Tauri를 기반으로 제작되었습니다.
